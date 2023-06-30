@@ -14,7 +14,7 @@ if os.environ.get("ATLASFORCED_SECRET_KEY"):
     token = os.environ.get("ATLASFORCED_SECRET_KEY")
     print("Using stored token")
 else:
-    data = {"username": "econtrerasmartinez", "password": "6100514092@Eze"}
+    data = {"username": "USER", "password": "PASS"}   # Enter User and Pass if needed
 
     resp = requests.post(url=f"{BASEURL}/api-token-auth/", data=data)
 

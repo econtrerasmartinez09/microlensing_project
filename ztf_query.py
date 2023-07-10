@@ -7,10 +7,10 @@ from io import StringIO
 import pandas as pd
 import requests
 
-USER = "ezequiel@lco.global"
-PASS = "6100514092@Eze"
+USER = "USER"
+PASS = "PASS"
 
-curl --user ${'ezequiel@lco.global'}:${'6100514092@Eze'} [...] "https://irsa.ipac.caltech.edu/cgi-bin/ZTF/nph_light_curves?ID=281216400001763"
+curl --user ${'USER'}:${'PASS'} [...] "https://irsa.ipac.caltech.edu/cgi-bin/ZTF/nph_light_curves?ID=281216400001763"
 
 #wget --auth-no-challenge --user=$USER --pass=$PASS [..] "https://irsa.ipac.caltech.edu/cgi-bin/ZTF/nph_light_curves?ID=281216400001763"
 

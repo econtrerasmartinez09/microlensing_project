@@ -1,0 +1,6 @@
+*.npy filter=lfs diff=lfs merge=lfs -text
+results_fspl_noparallax_gaia21bsg.npy filter=lfs diff=lfs merge=lfs -text
+results_fspl-usbl_noparallax_gaia21bsg.npy filter=lfs diff=lfs merge=lfs -text
+results_USBL_gaia21bsg.npy filter=lfs diff=lfs merge=lfs -text
+results_USBL_parallax_gaia21bsg.npy filter=lfs diff=lfs merge=lfs -text
+python_scripts/ filter=lfs diff=lfs merge=lfs -text

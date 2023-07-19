@@ -932,10 +932,10 @@ fit_2.fit_parameters['piEE'][1] = [-0.5, 0.5]
 import multiprocessing as mul
 pool = mul.Pool(processes=4)
 
-perform_long_fit = True
+perform_long_fit = False
 
 ### Fit the model:
-if perform_long_fit == False:
+if perform_long_fit == True:
     fit_2.fit(computational_pool=pool)
 
     # Save it
@@ -947,8 +947,8 @@ else:
     fit_2.fit_results['best_model'] = fit_2.fit_results['DE_population'][346501][0:-1]
     # fit_2.fit_results['best_model'] = [2457205.21, 0.0109583755, 1.78218726, -2.89415218, 0.0475121003, -3.79996021, 2.2549
 
+print(fit_2.fit_parameters.keys())
 print('Best_model', fit_2.fit_results['best_model'])
-fit_2.fit_parameters.keys()
 
 pyLIMA_plots.list_of_fake_telescopes = []
 plot_lightcurves(usbl,fit_2.fit_results['best_model'])

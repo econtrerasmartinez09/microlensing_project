@@ -5,11 +5,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 import csv
-import mpld3
-from mpld3 import plugins
 import cycler
 from matplotlib.ticker import MaxNLocator
 from bokeh.layouts import gridplot
+
+from bokeh.plotting import figure, output_file, show, save
+from bokeh.resources import CDN
+from bokeh.embed import file_html
+
+import mpld3
+from mpld3 import plugins
+
+
 
 from pyLIMA.fits import DE_fit
 from pyLIMA.fits import TRF_fit
@@ -599,16 +606,18 @@ my_fit.fit_results['best_model']
 my_fit.fit_parameters.keys()
 
 from pyLIMA.outputs import pyLIMA_plots
-plot_lightcurves(pspl,my_fit.fit_results['best_model'])
-mpld3.show()
+p = plot_lightcurves(pspl,my_fit.fit_results['best_model'])
+output_file(filename='gaia21bsgbase-DEfit.html',title="Gaia21bsg-base-DEfit")
+show(p)
+#mpld3.show()
 
-from pyLIMA.fits import LM_fit
+#from pyLIMA.fits import LM_fit
 
-my_fit2 = LM_fit.LMfit(pspl)
-my_fit2.fit()
-my_fit2.fit_results
-my_fit2.fit_results['best_model']
-my_fit2.fit_parameters.keys()
+#my_fit2 = LM_fit.LMfit(pspl)
+#my_fit2.fit()
+#my_fit2.fit_results
+#my_fit2.fit_results['best_model']
+#my_fit2.fit_parameters.keys()
 
-plot_lightcurves(pspl,my_fit2.fit_results['best_model'])
-mpld3.show()
+#plot_lightcurves(pspl,my_fit2.fit_results['best_model'])
+#mpld3.show()

@@ -911,28 +911,36 @@ your_event.check_event()
 pspl = PSPL_model.PSPLmodel(your_event)
 
 fit_1 = DE_fit.DEfit(pspl)
-fit_1.model_parameter_guess = [2.45935387e+06, 9.99759380e-01, 1.12577028e+00]
+fit_1.model_parameter_guess = [2459375.94, 0.243636, 110.893]
 fit_1.fit()
+
+print(fit_1.fit_parameters.keys())
 
 plot_lightcurves(pspl,fit_1.fit_results['best_model'])
 mpld3.show()
 
+print('')
+
+############################################################################################
+
 fancy = pyLIMA_fancy_parameters.standard_fancy_parameters
 usbl = USBL_model.USBLmodel(your_event,fancy_parameters=fancy,parallax=['None',2.45935387e+06])
 fit_2 = DE_fit.DEfit(usbl, telescopes_fluxes_method='polyfit', DE_population_size=10, max_iteration=10000, display_progress=True)
+fit_2.model_parameter_guess = [2459375.94, 0.243636, 4.708, -4.683, 0.324, -2.367, 0.663347] # [t0, u0, log_tE, log_rho, log_s, log_q, alpha]
+
 fit_2.fit_parameters['t0'][1] = [2459282.00, 2459413.00] # t0 limits, changed
-fit_2.fit_parameters['u0'][1] = [0.10, 0.15] # u0 limits, computed and changed
-fit_2.fit_parameters['log_tE'][1] = [4.09, 4.24] # logtE limits in days, changed
+fit_2.fit_parameters['u0'][1] = [0.10, 0.3] # u0 limits, computed and changed
+fit_2.fit_parameters['log_tE'][1] = [4.09, 5.0] # logtE limits in days, changed
 
 fit_2.fit_parameters['log_rho'][1] = [-6.042577190325831, -2.088329855444677]
-fit_2.fit_parameters['log_separation'][1] = [-4.40904379, -0.13026733] # log_s limits,
+fit_2.fit_parameters['log_separation'][1] = [-4.8, 0.4] # log_s limits,
 fit_2.fit_parameters['log_mass_ratio'][1] = [-7.472756449463439, 8.15962396e-03] # log_q limits,
 fit_2.fit_parameters['alpha'][1] = [-3.14, 3.14] # alpha limits (in radians)
 
 import multiprocessing as mul
 pool = mul.Pool(processes=4)
 
-perform_long_fit = True
+perform_long_fit = False
 
 ### Fit the model:
 if perform_long_fit == True:
@@ -943,14 +951,17 @@ if perform_long_fit == True:
 
 else:
     # Use the precomputed Differential Evolution (DE) results:
-    fit_2.fit_results['DE_population'] = np.load('./data/results_USBL_DE_966.npy')
+    fit_2.fit_results['DE_population'] = np.load('results_USBL_noparallax_gaia21bsg.npy')
     fit_2.fit_results['best_model'] = fit_2.fit_results['DE_population'][346501][0:-1]
     # fit_2.fit_results['best_model'] = [2457205.21, 0.0109583755, 1.78218726, -2.89415218, 0.0475121003, -3.79996021, 2.2549
 
-fit_2.fit_parameters.keys()
+print(fit_2.fit_parameters.keys())
 print('Best_model',fit_2.fit_results['best_model'])
 pyLIMA_plots.list_of_fake_telescopes = []
-
 plot_lightcurves(usbl,fit_2.fit_results['best_model'])
-plot_geometry(usbl,fit_2.fit_results['best_model'])
+
 mpld3.show()
+
+#plot_geometry(usbl,fit_2.fit_results['best_model'])
+
+#mpld3.show()

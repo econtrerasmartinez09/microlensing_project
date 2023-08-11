@@ -914,25 +914,10 @@ your_event.check_event()
 
 ############################################################################################
 
-from pyLIMA.fits import MCMC_fit
-import multiprocessing as mul
-from pyLIMA.fits import stats
-
-pool = mul.Pool(processes=2)
-
 fancy = pyLIMA_fancy_parameters.standard_fancy_parameters
-usbl = USBL_model.USBLmodel(your_event,fancy_parameters=fancy,parallax=['None',2.45935341e+06])   # defining usbl model
-
-# Now using MCMC fit instead of DE fit
-fit_2 = MCMC_fit.MCMCfit(usbl)   # wrapping mcmc fit algorithm around usbl model
-
-# print(fit_2.fit_parameters.keys())
-
-# keys = [t0, u0, log_tE, log_rho, log_separation, log_mass_ratio, alpha]
-
-# prev noZTF best model fit results
-# setting initial parameter guess and parameter constraints
-fit_2.model_parameters_guess = [2.45935341e+06, 1.48791735e-01, 2.65444058e+00, -2.62081329e+00, -1.63126084e-01, -8.10868845e-02, -3.30072563e-01]
+usbl = USBL_model.USBLmodel(your_event,fancy_parameters=fancy,parallax=['Full',2.45935341e+06])
+fit_2 = DE_fit.DEfit(usbl, telescopes_fluxes_method='polyfit', DE_population_size=20, max_iteration=10000, display_progress=True)
+fit_2.model_parameter_guess = [2.45935341e+06 , 1.48791735e-01, 2.65444058e+00 , -2.62081329e+00, -1.63126084e-01, -8.10868845e-02, 3.30072563e-01, 0, 0]
 
 fit_2.fit_parameters['t0'][1] = [2459282.00, 2459413.00] # t0 limits, changed
 fit_2.fit_parameters['u0'][1] = [-0.5, 0.5] # u0 limits, computed and changed
@@ -942,111 +927,33 @@ fit_2.fit_parameters['log_rho'][1] = [-6.042577190325831, -1]
 fit_2.fit_parameters['log_separation'][1] = [-1.0,1.0] # log_s limits,
 fit_2.fit_parameters['log_mass_ratio'][1] = [-5, 8.15962396e-03] # log_q limits,
 fit_2.fit_parameters['alpha'][1] = [-3.14, 3.14] # alpha limits (in radians)
+fit_2.fit_parameters['piEN'][1] = [-0.5, 0.5]
+fit_2.fit_parameters['piEE'][1] = [-0.5, 0.5]
 
+import multiprocessing as mul
+pool = mul.Pool(processes=4)
 
-
-
-#perform_long_fit = True
+perform_long_fit = True
 
 ### Fit the model:
-#if perform_long_fit == True:
-#    fit_2.fit(computational_pool=pool)
+if perform_long_fit == True:
+    fit_2.fit(computational_pool=pool)
 
     # Save it
-#    np.save('results/noZTF_MCMC+USBL_noparallax_gaia21bsg.npy', fit_2.fit_results['DE_population'])
+    np.save('results/noZTF_USBL_parallax.npy', fit_2.fit_results['DE_population'])
 
-#else:
+else:
     # Use the precomputed Differential Evolution (DE) results:
-#    fit_2.fit_results['DE_population'] = np.load('results/noZTF_MCMC+USBL_noparallax_gaia21bsg.npy')
-#    fit_2.fit_results['best_model'] = fit_2.fit_results['DE_population'][346501][0:-1]
+    fit_2.fit_results['DE_population'] = np.load('results/noZTF_USBL_parallax.npy')
+    fit_2.fit_results['best_model'] = fit_2.fit_results['DE_population'][346501][0:-1]
     # fit_2.fit_results['best_model'] = [2457205.21, 0.0109583755, 1.78218726, -2.89415218, 0.0475121003, -3.79996021, 2.2549
 
-fit_2.fit()
+print(fit_2.fit_parameters.keys())
+print('Best_model',fit_2.fit_results['best_model'])
+pyLIMA_plots.list_of_fake_telescopes = []
 
-plt.close('all')
-plt.plot(my_fit5.fit_results['MCMC_chains'][:,:,1])
+plot_lightcurves(usbl,fit_2.fit_results['best_model'])
 plt.show()
 
-#samples_without_ln_like = fit_2.fit_results["MCMC_chains"][:,:,5]
-#print(f"This is the shape of the chain with fluxes: {fit_2.fit_results['MCMC_chains_with_fluxes']}")
-#KS = stats.normal_Kolmogorov_Smirnov(fit_2.fit_results["MCMC_chains"][:,:,1].ravel())
-#print(f"This is the value for the KS test: {KS}")
-
-#graphing all but t0 against each other to analyze fit
-#plt.plot(fit_2.fit_results["MCMC_chains_with_fluxes"][500:,1,-1], label = 'u0')
-#plt.plot(fit_2.fit_results["MCMC_chains_with_fluxes"][500:,2,-1], label = 'log_tE')
-#plt.plot(fit_2.fit_results["MCMC_chains_with_fluxes"][500:,3,-1], label = 'log_rho')
-#plt.plot(fit_2.fit_results["MCMC_chains_with_fluxes"][500:,4,-1], label = 'log_s')
-#plt.plot(fit_2.fit_results["MCMC_chains_with_fluxes"][500:,5,-1], label = 'log_q')
-#plt.plot(fit_2.fit_results["MCMC_chains_with_fluxes"][500:,6,-1], label = 'alpha')
-
-#plt.legend()
-#plt.grid()
-
-#plt.savefig('mcmc_results/ver_2/KS_test_plot.png')
-
-#plt.hist(fit_2.fit_results["MCMC_chains_with_fluxes"][1500:,])
-
-#plt.close('all')
-
-# plotting to see how well t0 evolves
-#plt.plot(fit_2.fit_results['MCMC_chains'][:,:,0])
-#plt.savefig('mcmc_results/MCMC_t0_evolution.png')
-
-# plotting to see how well u0 evolves
-#plt.plot(fit_2.fit_results['MCMC_chains'][:,:,1])
-#plt.savefig('mcmc_results/MCMC_u0_evolution.png')
-
-# plotting to see how well log_tE evolves
-#plt.plot(fit_2.fit_results['MCMC_chains'][:,:,2])
-#plt.savefig('mcmc_results/MCMC_logtE_evolution.png')
-
-# plotting to see how well log_rho evolves
-#plt.plot(fit_2.fit_results['MCMC_chains'][:,:,3])
-#plt.savefig('mcmc_results/MCMC_logrho_evolution.png')
-
-# plotting to see how well log_separation evolves
-#plt.plot(fit_2.fit_results['MCMC_chains'][:,:,4])
-#plt.savefig('mcmc_results/MCMC_logsep_evolution.png')
-
-# plotting to see how well log_mass_ratio evolves
-#plt.plot(fit_2.fit_results['MCMC_chains'][:,:,5])
-#plt.savefig('mcmc_results/MCMC_logmass_evolution.png')
-
-# plotting to see how well alpha evolves
-#plt.plot(fit_2.fit_results['MCMC_chains'][:,:,6])
-#plt.savefig('mcmc_results/MCMC_alpha_evolution.png')
-
-#MCMC_results = fit_2.fit_results['MCMC_chains']
-#print ('Parameters', ' Model','   Fit','     Errors')
-#print ('-----------------------------------')
-#print ('t_0:', '        2.45935341e+06 ',str(np.median(MCMC_results[1000:,:,0]))[:7],'',str(np.std(MCMC_results[1000:,:,0]))[:7])
-#print ('u_0:', '        1.48791735e-01 ',str(np.median(MCMC_results[1000:,:,1]))[:7],'',str(np.std(MCMC_results[1000:,:,1]))[:7])
-#print ('log_tE:', '        2.65444058e+00 ',str(np.median(MCMC_results[1000:,:,2]))[:7],'',str(np.std(MCMC_results[1000:,:,2]))[:7])
-#print ('log_rho:', '        -2.62081329e+00 ',str(np.median(MCMC_results[1000:,:,3]))[:7],'',str(np.std(MCMC_results[1000:,:,3]))[:7])
-#print ('log_separation:', '        -1.63126084e-01 ',str(np.median(MCMC_results[1000:,:,4]))[:7],'',str(np.std(MCMC_results[1000:,:,4]))[:7])
-#print ('log_mass_ratio:', '        -8.10868845e-02 ',str(np.median(MCMC_results[1000:,:,5]))[:7],'',str(np.std(MCMC_results[1000:,:,5]))[:7])
-#print ('alpha:', '        -3.30072563e-01 ',str(np.median(MCMC_results[1000:,:,6]))[:7],'',str(np.std(MCMC_results[1000:,:,6]))[:7])
-
-#from matplotlib.pyplot import hist2d
-#from matplotlib.colors import LogNorm
-
-#plt.close('all')
-#plt.hist2d(MCMC_results[1000:,:,1].ravel(),MCMC_results[1000:,:,2].ravel(), norm=LogNorm(), bins=50)
-#plt.xlabel('u0')
-#plt.ylabel('log_tE')
-#plt.colorbar()
-#plt.show()
-
-###########################################3
-###########################################
-
-#print(fit_2.fit_parameters.keys())
-#print('Best_model',fit_2.fit_results['best_model'])
-#pyLIMA_plots.list_of_fake_telescopes = []
-
-#plot_lightcurves(usbl,fit_2.fit_results['best_model'])
-#plt.show()
-
-#plot_geometry(usbl,fit_2.fit_results['best_model'])
-#plt.show()
+plot_geometry(usbl,fit_2.fit_results['best_model'])
+plt.show()
